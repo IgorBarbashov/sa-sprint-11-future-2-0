@@ -1,0 +1,49 @@
+@startuml
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+
+Person(business_user, "Бизнес-пользователь", "Использует портал самообслуживания для построения и анализа отчетов")
+
+System_Boundary(b2, "Будущее 2.0 - Архитектура") {
+    Container(portal, "Портал витрины данных", "Web-приложение", "Self-service портал для построения и просмотра отчетов с контролем доступа")
+    Container(bi, "BI-платформа", "Power BI", "Платформа для визуализации и анализа данных")
+    Container(dwh, "EDW (Enterprise Data Warehouse)", "Облачный DWH / MPP", "Хранение агрегированных и доменных бизнес-данных (без мед. карт и исследований)")
+    Container(data_lake, "Data Lake", "Общее хранилище сырых данных", "Хранение исторических и сырых данных для обработки и анализа")
+    Container(data_services, "Сервисы обработки данных", "Микросервисы ETL/ELT", "Обработка, трансформация и интеграция данных")
+    Container(api_gateway, "Интеграционный слой", "API Gateway / Event Bus", "Оркестрация и маршрутизация данных между доменами")
+
+    Container(legacy_dwh, "Legacy DWH", "SQL Server 2008", "Старое корпоративное хранилище с бизнес-логикой, подлежит миграции")
+
+    Container(fintech, "Финтех-сервисы", "Golang/Java", "Управление финансовыми продуктами и операциями")
+    Container(med, "Медицинские сервисы", "Микросервисы", "Операционная деятельность клиник (без мед. карт и данных исследований)")
+    Container(pharma, "Фармацевтический сервис", "Микросервис", "Управление данными фармацевтики")
+    Container(devices, "Медицинское оборудование", "Микросервис", "Данные с медицинских устройств и оборудования")
+    Container(ai, "ИИ-сервисы", "Python/ML", "Медицинская и бизнес-аналитика")
+}
+
+Rel(business_user, portal, "Использует для запросов и просмотра отчетов", "HTTPS")
+Rel(portal, bi, "Формирование отчетов и аналитика", "HTTPS")
+Rel(portal, api_gateway, "Запросы к доменным сервисам и отчетам", "REST/Events")
+
+Rel(api_gateway, fintech, "Доступ к данным и сервисам финтех-домена", "REST/Events")
+Rel(api_gateway, med, "Данные для операционной деятельности клиник", "REST/Events")
+Rel(api_gateway, pharma, "Управление и интеграция фармацевтических данных", "REST/Events")
+Rel(api_gateway, devices, "Данные с медицинского оборудования", "REST/Events")
+Rel(api_gateway, ai, "Запросы аналитики и ИИ-обработок", "REST/Events")
+
+Rel(fintech, dwh, "Отправка агрегированных финансовых данных", "ETL/Streaming")
+Rel(med, dwh, "Отправка операционных данных (без мед. карт)", "ETL/Streaming")
+Rel(pharma, dwh, "Отправка данных фармацевтики", "ETL/Streaming")
+Rel(devices, dwh, "Отправка данных об эксплуатации оборудования", "ETL/Streaming")
+Rel(ai, dwh, "Подача аналитики и моделей", "ETL/Streaming")
+
+Rel(dwh, data_services, "Обеспечивает данные для трансформаций", "SQL/Batch")
+Rel(data_services, data_lake, "Обработка и хранение сырых данных", "Batch/Stream")
+Rel(data_services, dwh, "Загрузка обработанных бизнес-данных", "Batch/Stream")
+
+Rel(dwh, bi, "Подача агрегированных данных", "SQL")
+Rel(bi, portal, "Отображение результатов для пользователей", "HTTPS")
+
+Rel(legacy_dwh, dwh, "Миграция и синхронизация данных", "ETL")
+Rel(legacy_dwh, api_gateway, "Поддержка старых процессов и интеграций", "REST/Batch")
+
+@enduml

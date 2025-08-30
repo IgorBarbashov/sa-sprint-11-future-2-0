@@ -1,0 +1,14 @@
+{
+  "name": "aoe-techradar",
+  "version": "1.0.0",
+  "description": "Technical Radar for Будущее 2.0",
+  "main": "index.js",
+  "scripts": {
+    "build": "techradar build --strict",
+    "serve": "techradar serve"
+  },
+  "dependencies": {
+    "aoe_technology_radar": "^4"
+  },
+  "license": "MIT"
+}

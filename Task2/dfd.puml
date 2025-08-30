@@ -1,0 +1,34 @@
+@startuml
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+
+rectangle "Портал витрины данных" as Portal
+rectangle "BI-система" as BI
+rectangle "EDW и Data Lake" as EDW
+rectangle "Интеграционный слой" as Integration
+
+rectangle "Медицинский домен (ИИ-сервисы, клиники, мед.оборудование)" as Medical
+rectangle "Финансовый домен (финтех-сервисы)" as Fintech
+rectangle "Фармацевтический домен" as Pharma
+rectangle "Корпоративный домен (персонал, инвентаризация)" as Corporate
+rectangle "Legacy DWH" as Legacy
+
+Portal --> BI : Запросы и отчеты
+BI --> EDW : Получение агрегированных данных
+EDW --> Integration : Аггрегация и публикация данных
+
+Integration --> Medical : Запросы и доставка данных
+Integration --> Fintech : Запросы и доставка данных
+Integration --> Pharma : Запросы и доставка данных
+Integration --> Corporate : Запросы и доставка данных
+
+Legacy --> EDW : Миграция и синхронизация данных
+Legacy --> Integration : Поддержка старых интеграций
+
+Medical --> Integration : Операционные и аналитические данные
+Fintech --> Integration : Финансовые данные
+Pharma --> Integration : Фармацевтические данные
+Corporate --> Integration : Административные данные
+
+EDW --> Portal : Готовые агрегированные данные для отчетов
+
+@enduml
